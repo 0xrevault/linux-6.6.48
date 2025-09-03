@@ -1,69 +1,134 @@
 #include "stm32mp257d-atk-ddr-2GB.dts"
 / {
-/*
-	dsi_lcd_id select id:
-		atk_no_mipi = 1,
-		atk_mipi_dsi_5x5_720x1280 = 2,
-		atk_mipi_dsi_5x5_1080x1920 = 3,
-		atk_mipi_dsi_10x1_800x1280 = 4,
-*/
+	/*
+	 * dsi_lcd_id select id:
+	 * atk_no_mipi = 1,
+	 * atk_mipi_dsi_5x5_720x1280 = 2,
+	 * atk_mipi_dsi_5x5_1080x1920 = 3,
+	 * atk_mipi_dsi_10x1_800x1280 = 4,
+	 */
 	dsi_lcd_id {
-        dsi_select_id = <2>;
-    };
+		dsi_select_id = <2>;
+	};
 	
 	panel_dsi_backlight: panel-dsi-backlight {
-        compatible = "pwm-backlight";
-        pwms = <&pwm16 0 5000000 0>;
-		brightness-levels = <
-                     0   1   2   3   4   5   6   7	 8   9
-					10  11  12  13  14  15  16  17  18  19
-					20  21  22  23  24  25  26  27  28  29
-					30  31  32  33  34  35  36  37  38  39
-                    40  41  42  43  44  45  46  47  48  49
-					50  51  52  53  54  55  56  57  58  59
-					60  61  62  63  64  65  66  67  68  69
-					70  71  72  73  74  75  76  77  78  79
-                    80  81  82  83  84  85  86  87  88  89
-					90  91  92  93  94  95  96  97  98  99
-					100 101 102 103 104 105 106 107 108 109
-					110 111 112 113 114 115 116 117 118 119
-                    120 121 122 123 124 125 126 127 128 129
-					130 131 132 133 134 135 136 137 138 139
-					140 141 142 143 144 145 146 147 148 149
-					150 151 152 153 154 155 156 157 158 159
-                    160 161 162 163 164 165 166 167 168 169
-					170 171 172 173 174 175 176 177 178 179
-					180 181 182 183 184 185 186 187 188 189
-					190 191 192 193 194 195 196 197 198 199
-                    200 201 202 203 204 205 206 207 208 209
-					210 211 212 213 214 215 216 217 218 219
-					220 221 222 223 224 225 226 227 228 229
-					230 231 232 233 234 235 236 237 238 239
-                    240 241 242 243 244 245 246 247 248 249
-					250 251 252 253 254 255>;
-        power-supply = <&vdd_3v3>;
-        default-brightness-level = <255>;
-        status = "okay";
+		compatible = "pwm-backlight";
+		pwms = <&pwm16 0 5000000 0>;
+		brightness-levels = <0 1 2 3 4 5 6 7 8 9
+							 10 11 12 13 14 15 16 17 18 19
+							 20 21 22 23 24 25 26 27 28 29
+							 30 31 32 33 34 35 36 37 38 39
+							 40 41 42 43 44 45 46 47 48 49
+							 50 51 52 53 54 55 56 57 58 59
+							 60 61 62 63 64 65 66 67 68 69
+							 70 71 72 73 74 75 76 77 78 79
+							 80 81 82 83 84 85 86 87 88 89
+							 90 91 92 93 94 95 96 97 98 99
+							 100 101 102 103 104 105 106 107 108 109
+							 110 111 112 113 114 115 116 117 118 119
+							 120 121 122 123 124 125 126 127 128 129
+							 130 131 132 133 134 135 136 137 138 139
+							 140 141 142 143 144 145 146 147 148 149
+							 150 151 152 153 154 155 156 157 158 159
+							 160 161 162 163 164 165 166 167 168 169
+							 170 171 172 173 174 175 176 177 178 179
+							 180 181 182 183 184 185 186 187 188 189
+							 190 191 192 193 194 195 196 197 198 199
+							 200 201 202 203 204 205 206 207 208 209
+							 210 211 212 213 214 215 216 217 218 219
+							 220 221 222 223 224 225 226 227 228 229
+							 230 231 232 233 234 235 236 237 238 239
+							 240 241 242 243 244 245 246 247 248 249
+							 250 251 252 253 254 255>;
+		power-supply = <&vdd_3v3>;
+		default-brightness-level = <255>;
+		status = "okay";
 	};
 };
 
-&timers16 {
-    status = "okay";
-    /* spare dmas for other usage */
-    /delete-property/dmas;
-    /delete-property/dma-names;
+/* --------------------------------------------------------------------- */
+/* OV5645 camera integration: disable old sensor, add supplies and node  */
+/* 每一行都带注释，标注需要你在规格书或硬件上确认的位置                    */
+/* --------------------------------------------------------------------- */
 
-    pwm16: pwm {
-        pinctrl-0 = <&pwm16_pins_a>;
-        pinctrl-1 = <&pwm16_sleep_pins_a>;
-        pinctrl-names = "default", "sleep";
-        #pwm-cells = <2>;
-        status = "okay";
-    };
+/ {
+	/* 固定2.8V模拟电源占位（若已有PMIC 2.8V轨，请改为对应regulator并删除此占位） */
+	ov5645_vdda_2v8: ov5645-vdda-2v8 {
+		compatible = "regulator-fixed"; /* 固定电压regulator，占位用；CHECK: 若使用PMIC输出请替换为对应供电节点 */
+		regulator-name = "ov5645_vdda_2v8"; /* 供电名称，供摄像头AVDD使用（模拟2.8V） */
+		regulator-min-microvolt = <2800000>; /* 2.8V 最小值；CHECK: 规格书Electrical Characteristics */
+		regulator-max-microvolt = <2800000>; /* 2.8V 最大值；CHECK: 规格书Electrical Characteristics */
+		/* regulator-always-on;  // 可选：若电源需常上电, 解除注释；CHECK: 上下电时序 */
+	};
+
+	/* 固定1.5V内核电源占位（若已有PMIC 1.5V轨，请改为对应regulator并删除此占位） */
+	ov5645_vddd_1v5: ov5645-vddd-1v5 {
+		compatible = "regulator-fixed"; /* 固定电压regulator，占位用；CHECK: 若使用PMIC输出请替换为对应供电节点 */
+		regulator-name = "ov5645_vddd_1v5"; /* 供电名称，供摄像头DVDD使用（数字内核1.5V） */
+		regulator-min-microvolt = <1500000>; /* 1.5V 最小值；CHECK: 规格书Electrical Characteristics */
+		regulator-max-microvolt = <1500000>; /* 1.5V 最大值；CHECK: 规格书Electrical Characteristics */
+		/* regulator-always-on;  // 可选：若电源需常上电, 解除注释；CHECK: 上下电时序 */
+	};
+};
+
+&i2c4 {
+	/* 新增 OV5645 摄像头节点，I2C 地址通常为 0x3c；CHECK: 用 i2cdetect 或规格书确认地址 */
+	ov5645: camera@3c {
+		compatible = "ovti,ov5645"; /* 指定使用 OV5645 驱动（绑定文档 ovti,ov5645.yaml） */
+		reg = <0x3c>; /* I2C 7-bit 地址；CHECK: 规格书 SCCB/I2C Slave Address，或实机扫总线确认 */
+
+		/* 外部时钟输入，使用板上已有 24MHz 时钟；CHECK: 规格书允许的XVCLK范围与抖动要求 */
+		clocks = <&clk_ext_camera>; /* 时钟源引用：在基线DTS中为 fixed-clock 24MHz */
+		clock-frequency = <24000000>; /* XVCLK 频率（Hz） */
+
+		/* 三路电源：根据硬件电源轨连接；若已有对应rail，请替换为实际节点 */
+		vdddo-supply = <&scmi_v1v8>; /* DOVDD 1.8V（IO电压）；CHECK: 实际IO电压是否为1.8V，或是否为2.8/3.3V变体 */
+		vdda-supply = <&ov5645_vdda_2v8>; /* AVDD 2.8V 模拟电源；CHECK: 若PMIC已有2.8V轨请改为对应节点 */
+		vddd-supply = <&ov5645_vddd_1v5>; /* DVDD 1.5V 内核电源；CHECK: 若PMIC已有1.5V轨请改为对应节点 */
+
+		/* 复位与掉电脚：请按转接板连线和规格书有效电平确认极性与GPIO编号 */
+		enable-gpios = <&gpiog 3 GPIO_ACTIVE_HIGH>; /* PWDNB 引脚；CHECK: 有效电平（通常B表示低有效），以及是否接在PG3 */
+		reset-gpios = <&gpiog 4 GPIO_ACTIVE_LOW>; /* RESETB 引脚；CHECK: 有效电平与是否接在PG4 */
+
+		/* MIPI CSI-2 输出端口定义：与主机CSI连通，车道数与映射需与硬件一致 */
+		port {
+			ov5645_ep: endpoint {
+				clock-lanes = <0>; /* 时钟lane索引，通常为0；CHECK: 若转接板改变走线，请同步调整 */
+				data-lanes = <1 2>; /* 传感器侧数据lane编号（常用1和2两条）；CHECK: 实际连线及是否仅用1条 */
+				remote-endpoint = <&csi_sink>; /* 对端为主机CSI sink端点 */
+			};
+		};
+	};
+};
+
+/* 关闭原有的 IMX335 以避免同总线冲突（确认确实不再使用IMX335） */
+&imx335 {
+	status = "disabled"; /* 禁用旧传感器节点 */
+};
+
+/* 更新CSI接收端指向新的OV5645端点（只更新对端引用，保持原有bus/lane设置） */
+&csi_sink {
+	remote-endpoint = <&ov5645_ep>; /* 将对端改为新传感器端点 */
+	/* data-lanes 保持主机端默认设置；CHECK: 若仅1条数据线，请在基线DTS或此处相应修改 */
+};
+
+&timers16 {
+	status = "okay";
+	/* spare dmas for other usage */
+	/delete-property/ dmas;
+	/delete-property/ dma-names;
+
+	pwm16: pwm {
+		pinctrl-0 = <&pwm16_pins_a>;
+		pinctrl-1 = <&pwm16_sleep_pins_a>;
+		pinctrl-names = "default", "sleep";
+		#pwm-cells = <2>;
+		status = "okay";
+	};
 };
 
 &i2c8 {
-    goodix_ts@14 {
+	goodix_ts@14 {
 		compatible = "goodix,gt9271", "goodix,gt911";
 		reg = <0x14>;
 		pinctrl-names = "default";
@@ -103,14 +168,12 @@
 
 		port@0 {
 			reg = <0>;
-			dsi_in: endpoint {
-			};
+			dsi_in: endpoint {};
 		};
 
 		port@1 {
 			reg = <1>;
-			dsi_out: endpoint {
-			};
+			dsi_out: endpoint {};
 		};
 	};
 
