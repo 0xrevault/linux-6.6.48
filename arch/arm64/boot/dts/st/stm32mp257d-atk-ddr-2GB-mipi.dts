@@ -106,12 +106,6 @@
 	status = "disabled"; /* 禁用旧传感器节点 */
 };
 
-/* 更新CSI接收端指向新的OV5645端点（只更新对端引用，保持原有bus/lane设置） */
-&csi_sink {
-	remote-endpoint = <&ov5645_ep>; /* 将对端改为新传感器端点 */
-	/* data-lanes 保持主机端默认设置；CHECK: 若仅1条数据线，请在基线DTS或此处相应修改 */
-};
-
 &timers16 {
 	status = "okay";
 	/* spare dmas for other usage */
