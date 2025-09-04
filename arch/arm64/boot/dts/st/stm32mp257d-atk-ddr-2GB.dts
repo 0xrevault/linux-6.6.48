@@ -256,7 +256,7 @@
 		port@0 {
 			reg = <0>;
 			csi_sink: endpoint {			
-				remote-endpoint = <&ov5645_ep>;	
+				remote-endpoint = <&imx335_ep>;	
 				data-lanes = <0 1>;
 				bus-type = <4>;
 			};

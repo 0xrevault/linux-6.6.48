@@ -102,7 +102,12 @@
 };
 
 &csi {
+	vdd-supply = <&scmi_vddcore>;
+	vdda18-supply = <&scmi_v1v8>;
+	status = "okay";
 	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
 		port@0 {
 			reg = <0>;
 			csi_sink: endpoint {			
