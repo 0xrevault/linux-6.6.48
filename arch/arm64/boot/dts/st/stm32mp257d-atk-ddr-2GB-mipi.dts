@@ -122,6 +122,8 @@
 /* 关闭原有的 IMX335 以避免同总线冲突（确认确实不再使用IMX335） */
 &imx335 {
 	status = "disabled"; /* 禁用旧传感器节点 */
+	/delete-property/ reset-gpios; /* 删除reset GPIO属性，释放GPIOG4 */
+	/delete-property/ powerdown-gpios; /* 删除powerdown GPIO属性，释放GPIOG3 */
 };
 
 &timers16 {
