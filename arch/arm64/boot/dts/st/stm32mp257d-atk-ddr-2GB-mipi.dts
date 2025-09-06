@@ -87,8 +87,8 @@
 		vddd-supply = <&ov5645_vddd_1v5>; /* DVDD 1.5V 内核电源；CHECK: 若PMIC已有1.5V轨请改为对应节点 */
 
 		/* 复位与掉电脚：请按转接板连线和规格书有效电平确认极性与GPIO编号 */
-		enable-gpios = <&gpiog 3 GPIO_ACTIVE_HIGH>; /* PWDNB 引脚；CHECK: 有效电平（通常B表示低有效），以及是否接在PG3 */
-		reset-gpios = <&gpiog 4 GPIO_ACTIVE_LOW>; /* RESETB 引脚；CHECK: 有效电平与是否接在PG4 */
+		enable-gpios = <&gpiog 3 GPIO_ACTIVE_HIGH>;  
+		reset-gpios = <&gpiog 4 GPIO_ACTIVE_HIGH>;
 
 		/* MIPI CSI-2 输出端口定义：与主机CSI连通，车道数与映射需与硬件一致 */
 		port {
