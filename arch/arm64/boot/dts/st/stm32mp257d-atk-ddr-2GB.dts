@@ -155,28 +155,33 @@
 		regulator-boot-on;
 	};
 
-	imx335_2v9: imx335-2v9 {
+	ov5645_vdddo_1v8: camera-vdddo-1v8 {
 		compatible = "regulator-fixed";
-		regulator-name = "imx335-avdd";
-		regulator-min-microvolt = <2900000>;
-		regulator-max-microvolt = <2900000>;
-		regulator-always-on;
-	};
-
-	imx335_1v8: imx335-1v8 {
-		compatible = "regulator-fixed";
-		regulator-name = "imx335-ovdd";
+		regulator-name = "ov5645_vdddo_1v8";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
-		regulator-always-on;
+		/* 通过一个使能 GPIO 控制（如无，则删掉 gpio/enable-active-high） */
+		/* gpio = <&gpioX Y GPIO_ACTIVE_HIGH>; */
+		enable-active-high;
+		regulator-boot-on;
+		startup-delay-us = <1000>;
+	};
+	ov5645_vdda_2v8: ov5645-vdda-2v8 {
+		compatible = "regulator-fixed";
+		regulator-name = "ov5645_vdda_2v8";
+		regulator-min-microvolt = <2800000>;
+		regulator-max-microvolt = <2800000>;
+		regulator-boot-on;
+		startup-delay-us = <2000>;
+		/* regulator-always-on; */
 	};
 
-	imx335_1v2: imx335-1v2 {
+	ov5645_vddd_1v5: ov5645-vddd-1v5 {
 		compatible = "regulator-fixed";
-		regulator-name = "imx335-dvdd";
-		regulator-min-microvolt = <1200000>;
-		regulator-max-microvolt = <1200000>;
-		regulator-always-on;
+		regulator-name = "ov5645_vddd_1v5";
+		regulator-min-microvolt = <1500000>;
+		regulator-max-microvolt = <1500000>;
+		/* regulator-always-on; */
 	};
 };
 
@@ -256,7 +261,7 @@
 		port@0 {
 			reg = <0>;
 			csi_sink: endpoint {			
-				remote-endpoint = <&imx335_ep>;	
+				remote-endpoint = <&ov5645_ep>;	
 				data-lanes = <0 1>;
 				bus-type = <4>;
 			};
@@ -412,23 +417,24 @@
 		};
 	};
 
-	imx335: imx335@1a {
-		compatible = "sony,imx335";
-		reg = <0x1a>;
-		clocks = <&clk_ext_camera>;
-		avdd-supply = <&imx335_2v9>;
-		ovdd-supply = <&imx335_1v8>;
-		dvdd-supply = <&imx335_1v2>;        
-		reset-gpios = <&gpiog 4 (GPIO_ACTIVE_HIGH | GPIO_PUSH_PULL)>;
-		powerdown-gpios = <&gpiog 3 (GPIO_ACTIVE_HIGH | GPIO_PUSH_PULL)>;
-		status = "okay";
+	ov5645: camera@3c {
+		compatible = "ovti,ov5645";
+		reg = <0x3c>;
 
+		clocks = <&clk_ext_camera>;
+		clock-frequency = <24000000>;
+
+		vdddo-supply = <&ov5645_vdddo_1v8>;
+		vdda-supply = <&ov5645_vdda_2v8>;
+		vddd-supply = <&ov5645_vddd_1v5>;
+
+		enable-gpios = <&gpiog 3 GPIO_ACTIVE_HIGH>;
+		reset-gpios = <&gpiog 4 GPIO_ACTIVE_HIGH>;
 		port {
-			imx335_ep: endpoint {
-				remote-endpoint = <&csi_sink>;
+			ov5645_ep: endpoint {
 				clock-lanes = <0>;
 				data-lanes = <1 2>;
-				link-frequencies = /bits/ 64 <594000000>;
+				remote-endpoint = <&csi_sink>;
 			};
 		};
 	};
