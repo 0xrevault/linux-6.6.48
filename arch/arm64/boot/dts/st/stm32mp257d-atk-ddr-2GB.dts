@@ -160,20 +160,14 @@
 		regulator-name = "ov5645_vdddo_1v8";
 		regulator-min-microvolt = <1800000>;
 		regulator-max-microvolt = <1800000>;
-		/* 通过一个使能 GPIO 控制（如无，则删掉 gpio/enable-active-high） */
-		/* gpio = <&gpioX Y GPIO_ACTIVE_HIGH>; */
-		enable-active-high;
-		regulator-boot-on;
-		startup-delay-us = <1000>;
+		regulator-always-on;
 	};
 	ov5645_vdda_2v8: ov5645-vdda-2v8 {
 		compatible = "regulator-fixed";
 		regulator-name = "ov5645_vdda_2v8";
 		regulator-min-microvolt = <2800000>;
 		regulator-max-microvolt = <2800000>;
-		regulator-boot-on;
-		startup-delay-us = <2000>;
-		/* regulator-always-on; */
+		regulator-always-on;
 	};
 
 	ov5645_vddd_1v5: ov5645-vddd-1v5 {
@@ -181,7 +175,7 @@
 		regulator-name = "ov5645_vddd_1v5";
 		regulator-min-microvolt = <1500000>;
 		regulator-max-microvolt = <1500000>;
-		/* regulator-always-on; */
+		regulator-always-on;
 	};
 };
 
@@ -264,6 +258,7 @@
 				remote-endpoint = <&ov5645_ep>;	
 				data-lanes = <0 1>;
 				bus-type = <4>;
+				link-frequencies = /bits/ 64 <224000000 336000000>;
 			};
 		};
 
